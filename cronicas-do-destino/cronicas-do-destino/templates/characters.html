@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% set active_page = "characters" %}
+
+{% block title %}Personagens — Crônicas do Destino{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in-up">
+  <div class="page-title-line">
+    <h2>🧙 Personagens</h2>
+  </div>
+  <p>Crie, edite e gerencie seus heróis. Cada personagem tem sua própria jornada.</p>
+</div>
+
+<!-- -- Barra de filtros e busca -->
+<div class="filter-bar fade-in-up">
+  <div class="search-wrap">
+    <input type="text" class="search-input" id="searchInput"
+           placeholder="Buscar por nome..." oninput="filterCharacters()">
+  </div>
+
+  <select class="filter-select" id="filterClass" onchange="filterCharacters()">
+    <option value="">Todas as classes</option>
+    <option value="Guerreiro">Guerreiro</option>
+    <option value="Mago">Mago</option>
+    <option value="Ladino">Ladino</option>
+    <option value="Clérigo">Clérigo</option>
+    <option value="Ranger">Ranger</option>
+    <option value="Paladino">Paladino</option>
+  </select>
+
+  <select class="filter-select" id="filterRace" onchange="filterCharacters()">
+    <option value="">Todas as raças</option>
+    <option value="Humano">Humano</option>
+    <option value="Elfo">Elfo</option>
+    <option value="Anão">Anão</option>
+    <option value="Orc">Orc</option>
+    <option value="Halfling">Halfling</option>
+    <option value="Tiefling">Tiefling</option>
+  </select>
+
+  <select class="filter-select" id="filterProfile" onchange="filterCharacters()">
+    <option value="">Todos os perfis</option>
+    <!-- Preenchido pelo JS -->
+  </select>
+
+  <button class="btn btn-primary" onclick="openModal('createCharModal')">
+    ✨ Novo Personagem
+  </button>
+</div>
+
+<!-- -- Grade de personagens -->
+<div class="grid-auto" id="charactersGrid">
+  <div class="loading-center" style="grid-column: 1/-1;"><div class="spinner"></div></div>
+</div>
+
+<!-- ==========================================
+     MODAL: Criar Personagem
+     ========================================== -->
+<div class="modal-overlay" id="createCharModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">✨ Criar Personagem</h3>
+      <button class="modal-close" onclick="closeModal('createCharModal')">✕</button>
+    </div>
+
+    <form id="createCharForm" onsubmit="createCharacter(event)">
+      <div class="form-group">
+        <label class="form-label">Nome do Personagem *</label>
+        <input type="text" id="charName" class="form-control" placeholder="Ex: Aldric Ironbane" required maxlength="50">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Raça *</label>
+          <select id="charRace" class="form-control" required>
+            <option value="">Escolha uma raça</option>
+            <option value="Humano">🧑 Humano</option>
+            <option value="Elfo">🧝 Elfo</option>
+            <option value="Anão">⛏️ Anão</option>
+            <option value="Orc">💪 Orc</option>
+            <option value="Halfling">🍄 Halfling</option>
+            <option value="Tiefling">😈 Tiefling</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Classe *</label>
+          <select id="charClass" class="form-control" required onchange="updateClassPreview()">
+            <option value="">Escolha uma classe</option>
+            <option value="Guerreiro">⚔️ Guerreiro</option>
+            <option value="Mago">🔮 Mago</option>
+            <option value="Ladino">🗡️ Ladino</option>
+            <option value="Clérigo">✝️ Clérigo</option>
+            <option value="Ranger">🏹 Ranger</option>
+            <option value="Paladino">🛡️ Paladino</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- -- Preview de stats da classe selecionada -->
+      <div id="classPreview" style="display:none; background:var(--bg-main); border-radius:var(--radius); padding:12px; margin-bottom:16px;">
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-family:'Cinzel',serif;">Stats base da classe:</div>
+        <div id="classStatsRow" class="character-stats-row"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Perfil (opcional)</label>
+        <select id="charProfile" class="form-control">
+          <option value="">Sem perfil</option>
+          <!-- Preenchido pelo JS -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Backstory (opcional)</label>
+        <textarea id="charBackstory" class="form-control" rows="3"
+                  placeholder="Conte a história de origem do seu personagem..."></textarea>
+      </div>
+
+      <div class="d-flex gap-8 justify-between" style="margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('createCharModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">✨ Criar Personagem</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==========================================
+     MODAL: Detalhes do Personagem
+     ========================================== -->
+<div class="modal-overlay" id="charDetailModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="detailCharName">Personagem</h3>
+      <button class="modal-close" onclick="closeModal('charDetailModal')">✕</button>
+    </div>
+    <div id="charDetailContent"><!-- preenchido pelo JS --></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/characters.js"></script>
+{% endblock %}

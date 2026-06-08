@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Crônicas do Destino{% endblock %}</title>
+
+  <!-- -- Fontes: Cinzel para títulos épicos, Inter para textos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- -- Stylesheet principal -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- ==========================================
+         SIDEBAR — Navegação lateral fixa
+         ========================================== -->
+    <nav class="sidebar">
+      <!-- -- Logo e nome do app -->
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">⚔️</div>
+        <h1>Crônicas do Destino</h1>
+        <p>RPG de Mesa Digital</p>
+      </div>
+
+      <!-- -- Links de navegação -->
+      <div class="nav-section">
+        <div class="nav-label">Menu</div>
+
+        <a href="/" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+          <span class="nav-icon">🏠</span>
+          <span>Dashboard</span>
+        </a>
+
+        <a href="/characters" class="nav-item {% if active_page == 'characters' %}active{% endif %}">
+          <span class="nav-icon">🧙</span>
+          <span>Personagens</span>
+        </a>
+
+        <a href="/dice" class="nav-item {% if active_page == 'dice' %}active{% endif %}">
+          <span class="nav-icon">🎲</span>
+          <span>Dados</span>
+        </a>
+
+        <a href="/items" class="nav-item {% if active_page == 'items' %}active{% endif %}">
+          <span class="nav-icon">⚗️</span>
+          <span>Itens &amp; Loja</span>
+        </a>
+
+        <a href="/adventures" class="nav-item {% if active_page == 'adventures' %}active{% endif %}">
+          <span class="nav-icon">🗺️</span>
+          <span>Aventuras</span>
+        </a>
+
+        <a href="/profiles" class="nav-item {% if active_page == 'profiles' %}active{% endif %}">
+          <span class="nav-icon">👤</span>
+          <span>Perfis</span>
+        </a>
+      </div>
+
+      <!-- -- Rodapé da sidebar -->
+      <div class="sidebar-footer">
+        v1.0 &nbsp;·&nbsp; Python + Flask
+      </div>
+    </nav>
+
+    <!-- ==========================================
+         CONTEÚDO PRINCIPAL
+         ========================================== -->
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+
+  <!-- -- Container de toasts (notificações) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- -- JavaScript global: utilitários compartilhados -->
+  <script src="/static/js/app.js"></script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

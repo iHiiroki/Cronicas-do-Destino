@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% set active_page = "items" %}
+
+{% block title %}Itens & Loja — Crônicas do Destino{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in-up">
+  <div class="page-title-line">
+    <h2>⚗️ Itens &amp; Loja</h2>
+  </div>
+  <p>Compre equipamentos, gerencie inventários e fortaleça seu personagem.</p>
+</div>
+
+<!-- -- Abas: Loja / Inventário -->
+<div class="tabs fade-in-up">
+  <button class="tab-btn active" id="tab-shop"      onclick="switchTab('shop')">🛒 Loja</button>
+  <button class="tab-btn"        id="tab-inventory" onclick="switchTab('inventory')">🎒 Inventário</button>
+</div>
+
+<!-- ==========================================
+     ABA: LOJA
+     ========================================== -->
+<div id="panel-shop">
+
+  <!-- -- Controles: selecionar personagem comprador + filtros -->
+  <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:20px;" class="fade-in-up">
+    <select class="filter-select" id="shopCharSelect" style="min-width:200px;"
+            onchange="updateGoldDisplay()">
+      <option value="">Selecione um personagem</option>
+    </select>
+    <div id="goldDisplay" style="font-family:'Cinzel',serif; font-size:16px; color:var(--gold-300);">
+      <!-- Ouro do personagem -->
+    </div>
+  </div>
+
+  <!-- -- Filtros da loja -->
+  <div class="filter-bar fade-in-up">
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="shopSearch"
+             placeholder="Buscar itens..." oninput="filterShop()">
+    </div>
+
+    <select class="filter-select" id="shopType" onchange="filterShop()">
+      <option value="">Todos os tipos</option>
+      <option value="weapon">⚔️ Armas</option>
+      <option value="armor">🛡️ Armaduras</option>
+      <option value="spell">🔮 Magias</option>
+      <option value="potion">🧪 Poções</option>
+      <option value="accessory">💍 Acessórios</option>
+    </select>
+
+    <select class="filter-select" id="shopRarity" onchange="filterShop()">
+      <option value="">Todas as raridades</option>
+      <option value="comum">Comum</option>
+      <option value="incomum">Incomum</option>
+      <option value="raro">Raro</option>
+      <option value="épico">Épico</option>
+      <option value="lendário">Lendário</option>
+    </select>
+  </div>
+
+  <!-- -- Grade de itens da loja -->
+  <div class="grid-auto" id="shopGrid">
+    <div class="loading-center" style="grid-column:1/-1;"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ==========================================
+     ABA: INVENTÁRIO
+     ========================================== -->
+<div id="panel-inventory" style="display:none;">
+
+  <!-- -- Seletor de personagem -->
+  <div style="margin-bottom:20px;" class="fade-in-up">
+    <select class="filter-select" id="invCharSelect" style="min-width:220px;"
+            onchange="loadInventory()">
+      <option value="">Selecione um personagem</option>
+    </select>
+  </div>
+
+  <div id="inventoryContent">
+    <div class="empty-state">
+      <div class="empty-state-icon">🎒</div>
+      <h3>Selecione um personagem</h3>
+      <p>Escolha um personagem acima para ver seu inventário.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/items.js"></script>
+{% endblock %}

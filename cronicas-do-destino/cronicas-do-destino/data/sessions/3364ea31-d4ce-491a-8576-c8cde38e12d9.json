@@ -1,0 +1,13 @@
+{
+  "id": "3364ea31-d4ce-491a-8576-c8cde38e12d9",
+  "adventureId": "cave_of_shadows",
+  "characterId": "2ea51a24-a0c6-42a6-b9cc-b96d510b0b30",
+  "currentNodeId": "start",
+  "status": "failed",
+  "history": [],
+  "choicesMade": [],
+  "xpGained": 0,
+  "goldGained": 0,
+  "createdAt": "2026-06-07T20:42:08.245225",
+  "updatedAt": "2026-06-07T20:42:15.458075"
+}

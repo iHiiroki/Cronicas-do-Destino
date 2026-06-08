@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% set active_page = "dice" %}
+
+{% block title %}Dados — Crônicas do Destino{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in-up">
+  <div class="page-title-line">
+    <h2>🎲 Rolagem de Dados</h2>
+  </div>
+  <p>Escolha o dado, personalize o lançamento e veja o destino revelar-se.</p>
+</div>
+
+<div class="grid-2" style="gap: 24px; align-items: start;">
+
+  <!-- -- Painel central: dado animado e resultado -->
+  <div class="card card-purple fade-in-up" style="text-align:center; padding: 32px 24px;">
+
+    <!-- -- Seletor de tipo de dado -->
+    <div class="dice-selector" id="diceSelector">
+      <!-- -- Renderizado pelo JavaScript com SVGs corretos para cada dado -->
+    </div>
+
+    <!-- -- Área do dado animado -->
+    <div class="dice-arena">
+      <div class="dice-container">
+        <div class="dice-svg-wrapper" id="diceSvgWrapper">
+          <!-- -- SVG do dado atual (trocado pelo JS) -->
+          <svg id="currentDiceSvg" width="140" height="140" viewBox="0 0 140 140"></svg>
+        </div>
+      </div>
+
+      <!-- -- Resultado numérico grande -->
+      <div class="dice-result-display" id="diceResult" style="margin-top: 24px;">—</div>
+      <div class="dice-label" id="diceLabel">Selecione um dado e role</div>
+      <div id="diceBanner" style="margin-top:8px; min-height: 30px;"></div>
+    </div>
+
+    <!-- -- Controles adicionais -->
+    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+
+      <!-- -- Campo de modificador -->
+      <div class="d-flex align-center gap-8">
+        <label class="form-label" style="margin:0; white-space:nowrap;">Modificador:</label>
+        <input type="number" id="modifierInput" class="form-control" value="0"
+               style="width: 80px; text-align:center;" min="-20" max="20">
+      </div>
+
+      <!-- -- Campo de label personalizado -->
+      <div class="d-flex align-center gap-8">
+        <label class="form-label" style="margin:0; white-space:nowrap;">Rótulo:</label>
+        <input type="text" id="labelInput" class="form-control" placeholder="Ex: Ataque com espada"
+               style="width: 220px;">
+      </div>
+
+      <!-- -- Botão de rolar -->
+      <button class="btn btn-primary btn-lg" id="rollBtn" onclick="rollCurrentDice()" style="min-width:200px;">
+        🎲 Rolar Dado
+      </button>
+
+      <!-- -- Notação personalizada -->
+      <div class="d-flex align-center gap-8" style="margin-top: 4px;">
+        <input type="text" id="customNotation" class="form-control" placeholder="Notação livre: 3d8+5, 2d12..."
+               style="width: 200px;">
+        <button class="btn btn-ghost" onclick="rollCustom()">Rolar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- -- Painel direito: histórico de rolagens -->
+  <div class="fade-in-up">
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="card-header">
+        <span class="card-title">📜 Histórico de Rolagens</span>
+        <button class="btn btn-ghost btn-sm" onclick="clearHistory()">Limpar</button>
+      </div>
+      <div id="rollHistory">
+        <div class="empty-state" style="padding: 32px;">
+          <div class="empty-state-icon">🎲</div>
+          <p>Nenhuma rolagem ainda.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- Rolagens rápidas de combate -->
+    <div class="card card-cyan">
+      <div class="card-header">
+        <span class="card-title">⚡ Rolagens Rápidas</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-ghost" onclick="quickRoll('1d20', 'Teste de Habilidade')">
+          🎯 Teste de Habilidade (1d20)
+        </button>
+        <button class="btn btn-ghost" onclick="quickRoll('1d20', 'Ataque')">
+          ⚔️ Rolagem de Ataque (1d20)
+        </button>
+        <button class="btn btn-ghost" onclick="quickRoll('2d6', 'Dano de Espada')">
+          🗡️ Dano de Espada (2d6)
+        </button>
+        <button class="btn btn-ghost" onclick="quickRoll('1d8', 'Dano de Arco')">
+          🏹 Dano de Arco (1d8)
+        </button>
+        <button class="btn btn-ghost" onclick="quickRoll('2d8', 'Feitiço')">
+          🔮 Dano de Feitiço (2d8)
+        </button>
+        <button class="btn btn-ghost" onclick="quickRoll('4d6', 'Estatística')">
+          📊 Gerar Estatística (4d6)
+        </button>
+        <button class="btn btn-ghost" onclick="quickRoll('1d100', 'Tabela Aleatória')">
+          🎰 Tabela Aleatória (d100)
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/dice.js"></script>
+{% endblock %}

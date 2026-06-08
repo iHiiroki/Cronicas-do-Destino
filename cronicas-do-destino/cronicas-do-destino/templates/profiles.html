@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% set active_page = "profiles" %}
+
+{% block title %}Perfis — Crônicas do Destino{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in-up">
+  <div class="page-title-line">
+    <h2>👤 Perfis de Jogador</h2>
+  </div>
+  <p>Organize personagens por jogador ou campanha. Cada perfil é um mundo separado.</p>
+</div>
+
+<div style="display:flex; justify-content:flex-end; margin-bottom:20px;" class="fade-in-up">
+  <button class="btn btn-primary" onclick="openModal('createProfileModal')">
+    ✨ Novo Perfil
+  </button>
+</div>
+
+<!-- -- Grade de perfis -->
+<div class="grid-auto" id="profilesGrid">
+  <div class="loading-center" style="grid-column:1/-1;"><div class="spinner"></div></div>
+</div>
+
+<!-- ==========================================
+     MODAL: Criar Perfil
+     ========================================== -->
+<div class="modal-overlay" id="createProfileModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">✨ Criar Perfil</h3>
+      <button class="modal-close" onclick="closeModal('createProfileModal')">✕</button>
+    </div>
+
+    <form id="createProfileForm" onsubmit="createProfile(event)">
+      <div class="form-group">
+        <label class="form-label">Nome do Jogador *</label>
+        <input type="text" id="profileName" class="form-control"
+               placeholder="Ex: Thiago, Campanha dos Deuses..." required maxlength="40">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Avatar (emoji)</label>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;" id="avatarPicker">
+          <!-- Opções de avatar renderizadas pelo JS -->
+        </div>
+        <input type="hidden" id="profileAvatar" value="🧙">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição (opcional)</label>
+        <textarea id="profileDesc" class="form-control" rows="2"
+                  placeholder="Campanha, notas do jogador..."></textarea>
+      </div>
+
+      <div class="d-flex gap-8 justify-between" style="margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('createProfileModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">✨ Criar Perfil</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// -- Avatares disponíveis para perfis
+const AVATARS = ['🧙','⚔️','🛡️','🏹','🔮','✝️','🗡️','🦁','🐉','🌙','⭐','💎','🔥','❄️','🌿','👑'];
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProfiles();
+  renderAvatarPicker();
+});
+
+// -- Renderiza o seletor de avatares
+function renderAvatarPicker() {
+  const picker = document.getElementById('avatarPicker');
+  picker.innerHTML = AVATARS.map(a => `
+    <button type="button" class="avatar-opt" onclick="selectAvatar('${a}')"
+            style="width:40px;height:40px;border-radius:8px;font-size:22px;
+                   background:var(--bg-main);border:2px solid var(--border);
+                   cursor:pointer;transition:all .2s;"
+            data-emoji="${a}">${a}</button>
+  `).join('');
+  selectAvatar('🧙');
+}
+
+function selectAvatar(emoji) {
+  document.getElementById('profileAvatar').value = emoji;
+  document.querySelectorAll('.avatar-opt').forEach(el => {
+    el.style.borderColor = el.dataset.emoji === emoji ? 'var(--purple-500)' : 'var(--border)';
+    el.style.background  = el.dataset.emoji === emoji ? 'rgba(139,92,246,0.15)' : 'var(--bg-main)';
+  });
+}
+
+async function loadProfiles() {
+  try {
+    const profiles = await api.get('/api/profiles/');
+    const grid     = document.getElementById('profilesGrid');
+
+    if (profiles.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state-icon">👤</div>
+          <h3>Nenhum perfil criado</h3>
+          <p>Crie um perfil para organizar seus personagens por jogador ou campanha!</p>
+        </div>`;
+      return;
+    }
+
+    // -- Para cada perfil, busca quantos personagens ele tem
+    const charCounts = {};
+    try {
+      const chars = await api.get('/api/characters/');
+      chars.forEach(c => {
+        if (c.profileId) charCounts[c.profileId] = (charCounts[c.profileId] || 0) + 1;
+      });
+    } catch {}
+
+    grid.innerHTML = profiles.map(p => `
+      <div class="card card-purple fade-in-up" style="position:relative;">
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
+          <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--purple-800),var(--purple-600));
+                      display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">
+            ${p.avatar || '🧙'}
+          </div>
+          <div>
+            <div style="font-family:'Cinzel',serif;font-size:17px;font-weight:700;">${p.name}</div>
+            <div style="font-size:12px;color:var(--text-muted);">
+              ${charCounts[p.id] || 0} personagem(s) · Criado em ${formatDate(p.createdAt).split(',')[0]}
+            </div>
+          </div>
+        </div>
+        ${p.description ? `<p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">${p.description}</p>` : ''}
+        <div class="d-flex gap-8">
+          <a href="/characters?profile=${p.id}" class="btn btn-ghost btn-sm">Ver personagens →</a>
+          <button class="btn btn-red btn-sm" onclick="deleteProfile('${p.id}', '${p.name}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    toast.error('Erro ao carregar perfis: ' + e.message);
+  }
+}
+
+async function createProfile(e) {
+  e.preventDefault();
+  try {
+    await api.post('/api/profiles/', {
+      name:        document.getElementById('profileName').value,
+      avatar:      document.getElementById('profileAvatar').value,
+      description: document.getElementById('profileDesc').value,
+    });
+    toast.success('Perfil criado com sucesso!');
+    closeModal('createProfileModal');
+    document.getElementById('createProfileForm').reset();
+    selectAvatar('🧙');
+    loadProfiles();
+  } catch(e) {
+    toast.error(e.message);
+  }
+}
+
+async function deleteProfile(id, name) {
+  if (!confirm(`Remover o perfil "${name}"? Os personagens não serão deletados.`)) return;
+  try {
+    await api.del(`/api/profiles/${id}`);
+    toast.success('Perfil removido.');
+    loadProfiles();
+  } catch(e) {
+    toast.error(e.message);
+  }
+}
+</script>
+{% endblock %}
